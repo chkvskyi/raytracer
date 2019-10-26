@@ -6,8 +6,8 @@ use ray::Ray;
 use vector::Vector3;
 
 pub fn main() {
-    let nx = 200;
-    let ny = 100;
+    let nx = 600;
+    let ny = 300;
 
     let lover_left_corner = Vector3::from_xyz(-2., -1., -1.);
     let horizontal = Vector3::from_xyz(4., 0., 0.);
@@ -31,8 +31,20 @@ pub fn main() {
 }
 
 fn test_color(r: Ray) -> Rgba<u8> {
+    if hit_sphere(Vector3::from_xyz(0., 0., -3.), 1., &r) {
+        return Rgba([0, 150, 250, 0])
+    }
     let unit = r.direction().normalize();
     let t = 0.5 * (unit.y + 1.0);
     let c = (1.0 - t) * Vector3::from_xyz(1.0, 1.0, 1.0) + t * Vector3::from_xyz(0.5, 0.7, 1.0);
     Rgba([(c.x * 255.0) as u8, (c.y * 255.0) as u8, (c.z * 255.0) as u8, 0])
+}
+
+fn hit_sphere(center: Vector3, radius: f64, ray: &Ray) -> bool {
+    let oc = ray.origin() - center;
+    let a = ray.direction().dot(&ray.direction());
+    let b = 2.0 * ray.direction().dot(&oc);
+    let c = oc.dot(&oc) - radius * radius;
+
+    b * b - 4.0 * a * c > 0.
 }

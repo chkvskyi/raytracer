@@ -14,6 +14,10 @@ impl Ray {
         self.direction.clone()
     }
 
+    pub fn origin(&self) -> Vector3 {
+        self.origin.clone()
+    }
+
     pub fn new(origin: Vector3, dir: Vector3) -> Ray {
         Ray {
             origin: origin,
