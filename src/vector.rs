@@ -1,16 +1,22 @@
 use std::ops::{Add, Sub, Mul, Neg};
-use serde::{Deserialize, Deserializer};
 
-#[derive(Copy, Clone, Debug, Deserialize, Serialize)]
-#[repr(C)]
+#[derive(Copy, Clone, Debug)]
 pub struct Vector3 {
-    x: f64,
-    y: f64,
-    z: f64
+    pub x: f64,
+    pub y: f64,
+    pub z: f64
 }
 
 impl Vector3 {
-    pub fn magn(&self): f64 {
+    pub fn from_xyz(x: f64, y: f64, z: f64) -> Vector3 {
+        Vector3 {
+            x: x,
+            y: y,
+            z: z
+        }
+    }
+
+    pub fn magn(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
@@ -26,15 +32,23 @@ impl Vector3 {
         }
     }
 
-    pub fn setX(&self, x: f64) {
+    pub fn normalize(&self) -> Vector3 {
+        Vector3 {
+            x: self.x / self.magn(),
+            y: self.y / self.magn(),
+            z: self.z / self.magn()
+        }
+    }
+
+    pub fn set_x(&mut self, x: f64) {
         self.x = x;
     }
 
-    pub fn setY(&self, y: f64) {
+    pub fn set_y(&mut self, y: f64) {
         self.y = y;
     }
 
-    pub fn setZ(&self, z: f64) {
+    pub fn set_z(&mut self, z: f64) {
         self.z = z;
     }
 }
