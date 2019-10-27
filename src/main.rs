@@ -31,8 +31,11 @@ pub fn main() {
 }
 
 fn test_color(r: Ray) -> Rgba<u8> {
-    if hit_sphere(Vector3::from_xyz(0., 0., -3.), 1., &r) {
-        return Rgba([0, 150, 250, 0])
+    let t =  hit_sphere(Vector3::from_xyz(0., 0., -2.), 0.5, &r);
+    if t > 0. {
+        let N = 0.5 * (r.point_at(t) - Vector3::from_xyz(0., 0., -2.)).normalize();
+        let cN = 255. * Vector3::from_xyz(N.x + 0.5, N.y + 0.5, N.z + 0.5);
+        return Rgba([cN.x as u8, cN.y as u8, cN.z as u8, 0]);
     }
     let unit = r.direction().normalize();
     let t = 0.5 * (unit.y + 1.0);
@@ -40,11 +43,15 @@ fn test_color(r: Ray) -> Rgba<u8> {
     Rgba([(c.x * 255.0) as u8, (c.y * 255.0) as u8, (c.z * 255.0) as u8, 0])
 }
 
-fn hit_sphere(center: Vector3, radius: f64, ray: &Ray) -> bool {
+fn hit_sphere(center: Vector3, radius: f64, ray: &Ray) -> f64 {
     let oc = ray.origin() - center;
     let a = ray.direction().dot(&ray.direction());
     let b = 2.0 * ray.direction().dot(&oc);
     let c = oc.dot(&oc) - radius * radius;
-
-    b * b - 4.0 * a * c > 0.
+    let D = b * b - 4.0 * a * c;
+    if D < 0. {
+        return -1.;
+    } else {
+        return (-b - D.sqrt()) / (2.0 * a)
+    }
 }
