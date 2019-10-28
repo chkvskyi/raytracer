@@ -5,7 +5,7 @@ pub mod scene;
 
 use ray::Ray;
 use vector::Vector3;
-use scene::{Sphere};
+use scene::{Scene, Sphere};
 
 pub fn main() {
     let nx = 1920;
@@ -37,7 +37,16 @@ fn test_color(r: Ray) -> Rgba<u8> {
         center: Vector3::from_xyz(0., 0., -2.),
         radius: 0.5
     };
-    let t =  sphere.intersect(&r);
+    let sphere1 = Sphere {
+        center: Vector3::from_xyz(1., 1., -3.),
+        radius: 1.
+    };
+    let mut scene = Scene {
+        items: Vec::new()
+    };
+    scene.items.push(sphere);
+    scene.items.push(sphere1);
+    let t =  scene.trace(&r);
     if t > 0. {
         let N = (r.point_at(t) - Vector3::from_xyz(0., 0., -2.)).normalize();
         let cN = 0.5 * 255. * Vector3::from_xyz(N.x + 1., N.y + 1., N.z + 1.);
