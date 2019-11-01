@@ -40,6 +40,7 @@ impl Scene {
             if k > 0. {
                 p = k;
                 i = Some(*item);
+                break;
             }
         }
 

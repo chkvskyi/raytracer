@@ -16,6 +16,14 @@ impl Vector3 {
         }
     }
 
+    pub fn zero() -> Vector3 {
+        Vector3 {
+            x: 0.,
+            y: 0.,
+            z: 0.
+        }
+    }
+
     pub fn magn(&self) -> f64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
