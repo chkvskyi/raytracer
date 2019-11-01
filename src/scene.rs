@@ -1,6 +1,7 @@
 use crate::vector::Vector3;
 use crate::ray::Ray;
 
+#[derive(Copy, Clone, Debug)]
 pub struct Sphere {
     pub center: Vector3,
     pub radius: f64
@@ -20,19 +21,34 @@ impl Sphere {
     }
 }
 
+pub struct Intersection {
+    pub intersected: Sphere,
+    pub dist: f64
+}
+
 pub struct Scene {
     pub items: Vec<Sphere>
 }
 
 impl Scene {
-    pub fn trace(&self, r: &Ray) -> f64 {
+    pub fn trace(&self, r: &Ray) -> Option<Intersection> {
         let mut p: f64 = -1.;
+        let mut i: Option<Sphere> = None;
         for item in self.items.iter() {
             let k = item.intersect(&r);
+
             if k > 0. {
                 p = k;
+                i = Some(*item);
             }
         }
-        p
+
+        match i {
+            Some(item) => Some(Intersection {
+                intersected: item,
+                dist: p
+            }),
+            None => None
+        }
     }
 }

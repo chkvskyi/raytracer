@@ -11,8 +11,8 @@ use scene::{Scene, Sphere};
 use camera::Camera;
 
 pub fn main() {
-    let nx = 1920;
-    let ny = 1080;
+    let nx = 600;
+    let ny = 300;
     let ns = 100;
 
     let mut rng = rand::thread_rng();
@@ -29,7 +29,7 @@ pub fn main() {
     for x in 0..nx {
         for y in 0..ny {
             let mut col = [0., 0., 0., 0.];
-            for s in 0..ns {
+            for _s in 0..ns {
                 let ru: f64 = rng.gen();
                 let u = (x as f64 + ru) as f64 / nx as f64;
                 let rv: f64 = rng.gen();
@@ -63,14 +63,18 @@ fn color(r: &Ray) -> [f64; 4] {
     };
     scene.items.push(sphere);
     scene.items.push(sphere1);
-    let t =  scene.trace(&r);
-    if t > 0. {
-        let N = (r.point_at(t) - Vector3::from_xyz(0., 0., -2.)).normalize();
-        let cN = 0.5 * Vector3::from_xyz(N.x + 1., N.y + 1., N.z + 1.);
-        return [cN.x, cN.y, cN.z, 0.];
+
+    match scene.trace(&r) {
+        Some(intersection) => {
+            let N = (r.point_at(intersection.dist) - intersection.intersected.center).normalize();
+            let cN = 0.5 * Vector3::from_xyz(N.x + 1., N.y + 1., N.z + 1.);
+            [cN.x, cN.y, cN.z, 0.]
+        },
+        None => {
+            let unit = r.direction().normalize();
+            let t = 0.5 * (unit.y + 1.0);
+            let c = (1.0 - t) * Vector3::from_xyz(1.0, 1.0, 1.0) + t * Vector3::from_xyz(0.5, 0.7, 1.0);
+            [c.x, c.y, c.z, 0.]
+        }
     }
-    let unit = r.direction().normalize();
-    let t = 0.5 * (unit.y + 1.0);
-    let c = (1.0 - t) * Vector3::from_xyz(1.0, 1.0, 1.0) + t * Vector3::from_xyz(0.5, 0.7, 1.0);
-    [c.x, c.y, c.z, 0.]
 }
