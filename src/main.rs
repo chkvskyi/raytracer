@@ -44,7 +44,7 @@ pub fn main() {
         }
     }
 
-    img.save("normals.png").unwrap();
+    img.save("test.png").unwrap();
 }
 
 fn color(r: &Ray) -> Vector3 {
