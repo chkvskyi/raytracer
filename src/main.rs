@@ -5,18 +5,20 @@ pub mod ray;
 pub mod vector;
 pub mod scene;
 pub mod camera;
+pub mod render;
 
-use ray::Ray;
 use vector::Vector3;
 use scene::{Scene, Sphere, Material, Surface};
 use camera::Camera;
+use render::get_color;
 
 pub fn main() {
-    let nx = 400;
-    let ny = 200;
+    let nx = 2000;
+    let ny = 1000;
     let ns = 100;
 
     let mut rng = rand::thread_rng();
+    let mut progress = ProgressBar::new(nx as u64);
 
     let camera = Camera {
         lover_left_corner: Vector3::from_xyz(-2., -1., -1.),
@@ -27,7 +29,7 @@ pub fn main() {
 
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
-    let mut progress = ProgressBar::new(nx as u64);
+    let scene = init_scene();
 
     for x in 0..nx {
         for y in 0..ny {
@@ -39,7 +41,7 @@ pub fn main() {
                 let v = (ny as f64 - y as f64 + rv) as f64 / ny as f64;
 
                 let r = camera.get_ray(u, v);
-                col = col + color(&r);
+                col = col + get_color(&scene, &r, 1);
             }
 
             col = col / ns as f64;
@@ -50,48 +52,38 @@ pub fn main() {
         progress.inc();
     }
 
-    img.save("tt.png").unwrap();
+    img.save("tt1.png").unwrap();
     progress.finish_print("done");
 }
 
-fn color(r: &Ray) -> Vector3 {
-    let mat = Material {
+fn init_scene() -> Scene {
+    let diffuse_mat = Material {
         albedo: 0.5,
         surface: Surface::Diffuse
     };
-    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -2.), 0.5, mat);
-    let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., mat);
+    let metall_mat = Material {
+        albedo: 1.,
+        surface: Surface::Reflective {
+            reflectivity: 0.5
+        }
+    };
+    let metall_mat1 = Material {
+        albedo: 1.,
+        surface: Surface::Reflective {
+            reflectivity: 0.1
+        }
+    };
+    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -1.), 0.5, diffuse_mat);
+    let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., diffuse_mat);
+    let metall_sphere = Sphere::new(Vector3::from_xyz(1., 0., -1.), 0.5, metall_mat);
+    let metall_sphere1 = Sphere::new(Vector3::from_xyz(-1., 0., -1.), 0.5, metall_mat1);
     let mut scene = Scene {
         items: Vec::new()
     };
     scene.items.push(sphere);
+    scene.items.push(metall_sphere);
+    scene.items.push(metall_sphere1);
     scene.items.push(sphere1);
 
-    match scene.trace(&r) {
-        Some(intersection) => {
-            let p = r.point_at(intersection.dist);
-            let N = (r.point_at(intersection.dist) - intersection.intersected.center()).normalize();
-            let target = N + p + random_unit_sphere();
-            let cN = 0.5 * Vector3::from_xyz(N.x + 1., N.y + 1., N.z + 1.);
-            return intersection.intersected.material().albedo as f64 * color(&Ray::new(p, target - p))
-        },
-        None => {
-            let unit = r.direction().normalize();
-            let t = 0.5 * (unit.y + 1.0);
-            (1.0 - t) * Vector3::from_xyz(1.0, 1.0, 1.0) + t * Vector3::from_xyz(0.5, 0.7, 1.0)
-        }
-    }
-}
-
-fn random_unit_sphere() -> Vector3 {
-    let mut p = Vector3::from_xyz(0., 0., 0.);
-    let mut rng = rand::thread_rng();
-    while p.magn() * p.magn() < 1. {
-        p = Vector3 {
-            x: rng.gen(),
-            y: rng.gen(),
-            z: rng.gen()
-        }
-    }
-    p
+    scene
 }

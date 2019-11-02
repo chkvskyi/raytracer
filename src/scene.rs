@@ -45,7 +45,7 @@ impl Sphere {
 #[derive(Copy, Clone, Debug)]
 pub enum Surface {
     Diffuse,
-    Reflective,
+    Reflective { reflectivity: f32 },
     Refractive
 }
 
