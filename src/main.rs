@@ -42,7 +42,9 @@ pub fn main() {
                 col = col + color(&r);
             }
 
-            col = 255. / ns as f64 * col;
+            col = col / ns as f64;
+            col = Vector3::from_xyz(col.x.sqrt(), col.y.sqrt(), col.z.sqrt());
+            col = 255. * col;
             img.put_pixel(x, y, Rgba([col.x as u8, col.y as u8, col.z as u8, 0]));
         }
         progress.inc();
