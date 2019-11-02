@@ -1,5 +1,6 @@
 use image::{DynamicImage, GenericImage, Rgba};
 use rand::Rng;
+use pbr::ProgressBar;
 pub mod ray;
 pub mod vector;
 pub mod scene;
@@ -26,6 +27,8 @@ pub fn main() {
 
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
+    let mut progress = ProgressBar::new(nx as u64);
+
     for x in 0..nx {
         for y in 0..ny {
             let mut col = Vector3::zero();
@@ -42,9 +45,11 @@ pub fn main() {
             col = 255. / ns as f64 * col;
             img.put_pixel(x, y, Rgba([col.x as u8, col.y as u8, col.z as u8, 0]));
         }
+        progress.inc();
     }
 
-    img.save("test.png").unwrap();
+    img.save("test_sqrt.png").unwrap();
+    progress.finish_print("done");
 }
 
 fn color(r: &Ray) -> Vector3 {
