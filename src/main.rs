@@ -8,12 +8,12 @@ pub mod camera;
 
 use ray::Ray;
 use vector::Vector3;
-use scene::{Scene, Sphere};
+use scene::{Scene, Sphere, Material, Surface};
 use camera::Camera;
 
 pub fn main() {
-    let nx = 1800;
-    let ny = 900;
+    let nx = 400;
+    let ny = 200;
     let ns = 100;
 
     let mut rng = rand::thread_rng();
@@ -50,19 +50,17 @@ pub fn main() {
         progress.inc();
     }
 
-    img.save("test_sqrt.png").unwrap();
+    img.save("tt.png").unwrap();
     progress.finish_print("done");
 }
 
 fn color(r: &Ray) -> Vector3 {
-    let sphere = Sphere {
-        center: Vector3::from_xyz(0., 0., -2.),
-        radius: 0.5
+    let mat = Material {
+        albedo: 0.5,
+        surface: Surface::Diffuse
     };
-    let sphere1 = Sphere {
-        center: Vector3::from_xyz(0., -100.5, -1.),
-        radius: 100.
-    };
+    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -2.), 0.5, mat);
+    let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., mat);
     let mut scene = Scene {
         items: Vec::new()
     };
@@ -72,11 +70,10 @@ fn color(r: &Ray) -> Vector3 {
     match scene.trace(&r) {
         Some(intersection) => {
             let p = r.point_at(intersection.dist);
-            let N = (r.point_at(intersection.dist) - intersection.intersected.center).normalize();
+            let N = (r.point_at(intersection.dist) - intersection.intersected.center()).normalize();
             let target = N + p + random_unit_sphere();
             let cN = 0.5 * Vector3::from_xyz(N.x + 1., N.y + 1., N.z + 1.);
-            return 0.5 * color(&Ray::new(p, target - p))
-            // [cN.x, cN.y, cN.z, 0.]
+            return intersection.intersected.material().albedo as f64 * color(&Ray::new(p, target - p))
         },
         None => {
             let unit = r.direction().normalize();

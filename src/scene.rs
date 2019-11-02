@@ -3,10 +3,19 @@ use crate::ray::Ray;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
-    pub center: Vector3,
-    pub radius: f64
+    center: Vector3,
+    radius: f64,
+    material: Material
 }
 impl Sphere {
+    pub fn new(center: Vector3, radius: f64, material: Material) -> Sphere {
+        Sphere {
+            center: center,
+            radius: radius,
+            material: material
+        }
+    }
+
     pub fn intersect(&self, ray: &Ray) -> f64 {
         let oc = ray.origin() - self.center;
         let a = ray.direction().dot(&ray.direction());
@@ -19,6 +28,31 @@ impl Sphere {
             return (-b - D.sqrt()) / (2.0 * a)
         }
     }
+
+    pub fn center(&self) -> Vector3 {
+        self.center
+    }
+
+    pub fn radius(&self) -> f64 {
+        self.radius
+    }
+
+    pub fn material(&self) -> Material {
+        self.material
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub enum Surface {
+    Diffuse,
+    Reflective,
+    Refractive
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Material {
+    pub albedo: f32,
+    pub surface: Surface
 }
 
 pub struct Intersection {
