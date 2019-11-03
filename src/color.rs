@@ -7,6 +7,7 @@ fn gamma_encode(linear: f32) -> f32 {
     linear.powf(1.0 / GAMMA)
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct Color {
     r: f32,
     g: f32,
@@ -46,6 +47,30 @@ impl Color {
         }
     }
 
+    pub fn red() -> Color {
+        Color {
+            r: 1.,
+            g: 0.,
+            b: 0.
+        }
+    }
+
+    pub fn green() -> Color {
+        Color {
+            r: 0.,
+            g: 1.,
+            b: 0.
+        }
+    }
+
+    pub fn blue() -> Color {
+        Color {
+            r: 0.,
+            g: 0.,
+            b: 1.
+        }
+    }
+
     pub fn new(r: f32, g: f32, b: f32) -> Color {
         Color {
             r: r,
@@ -63,6 +88,18 @@ impl Add for Color {
             r: self.r + other.r,
             g: self.g + other.g,
             b: self.b + other.b
+        }
+    }
+}
+
+impl Mul for Color {
+    type Output = Color;
+
+    fn mul(self, other: Color) -> Color {
+        Color {
+            r: self.r * other.r,
+            g: self.g * other.g,
+            b: self.b * other.b
         }
     }
 }

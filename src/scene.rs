@@ -2,6 +2,7 @@ use std::f64;
 
 use crate::vector::Vector3;
 use crate::ray::Ray;
+use crate::color::Color;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
@@ -53,6 +54,7 @@ pub enum Surface {
 
 #[derive(Copy, Clone, Debug)]
 pub struct Material {
+    pub color: Color,
     pub albedo: f32,
     pub surface: Surface
 }

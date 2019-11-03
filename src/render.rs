@@ -18,7 +18,7 @@ pub fn get_color(scene: &Scene, ray: &Ray, depth: u8) -> Color {
             match material.surface {
                 Surface::Diffuse => {
                     let target = normal + p + random_unit_sphere();
-                    return intersection.intersected.material().albedo * get_color(&scene, &Ray::new(p, target - p), depth + 1)
+                    return intersection.intersected.material().albedo * material.color * get_color(&scene, &Ray::new(p, target - p), depth + 1)
                 },
                 Surface::Reflective { reflectivity } => {
                     let dir = ray.direction().normalize();

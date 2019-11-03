@@ -52,29 +52,40 @@ pub fn main() {
         progress.inc();
     }
 
-    img.save("ttsm.png").unwrap();
+    img.save("output.png").unwrap();
     progress.finish_print("done");
 }
 
 fn init_scene() -> Scene {
-    let diffuse_mat = Material {
-        albedo: 0.3,
-        surface: Surface::Diffuse
-    };
     let metall_mat = Material {
+        color: Color::white(),
         albedo: 0.8,
         surface: Surface::Reflective {
             reflectivity: 0.5
         }
     };
     let metall_mat1 = Material {
+        color: Color::white(),
         albedo: 1.,
         surface: Surface::Reflective {
             reflectivity: 0.1
         }
     };
-    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -2.), 0.5, diffuse_mat);
-    let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., diffuse_mat);
+
+    let diff_center_mat = Material {
+        color: Color::red(),
+        albedo: 0.3,
+        surface: Surface::Diffuse
+    };
+    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -2.), 0.5, diff_center_mat);
+
+    let diff_bottom_mat = Material {
+        color: Color::green(),
+        albedo: 0.3,
+        surface: Surface::Diffuse
+    };
+    let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., diff_bottom_mat);
+
     let metall_sphere = Sphere::new(Vector3::from_xyz(1., 0., -2.), 0.5, metall_mat);
     let metall_sphere1 = Sphere::new(Vector3::from_xyz(-1., 0., -2.), 0.5, metall_mat1);
     let mut scene = Scene {
