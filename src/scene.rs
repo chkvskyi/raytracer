@@ -1,3 +1,5 @@
+use std::f64;
+
 use crate::vector::Vector3;
 use crate::ray::Ray;
 
@@ -66,15 +68,13 @@ pub struct Scene {
 
 impl Scene {
     pub fn trace(&self, r: &Ray) -> Option<Intersection> {
-        let mut p: f64 = -1.;
+        let mut p: f64 = f64::MAX;
         let mut i: Option<Sphere> = None;
         for item in self.items.iter() {
             let k = item.intersect(&r);
-
-            if k > 0. {
+            if k > 0. && k < p {
                 p = k;
                 i = Some(*item);
-                break;
             }
         }
 

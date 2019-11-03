@@ -1,4 +1,4 @@
-use image::{DynamicImage, GenericImage, Rgba};
+use image::{DynamicImage, GenericImage};
 use rand::Rng;
 use pbr::ProgressBar;
 pub mod ray;
@@ -6,15 +6,17 @@ pub mod vector;
 pub mod scene;
 pub mod camera;
 pub mod render;
+pub mod color;
 
 use vector::Vector3;
 use scene::{Scene, Sphere, Material, Surface};
 use camera::Camera;
 use render::get_color;
+use color::Color;
 
 pub fn main() {
-    let nx = 2000;
-    let ny = 1000;
+    let nx = 1920;
+    let ny = 960;
     let ns = 100;
 
     let mut rng = rand::thread_rng();
@@ -33,7 +35,7 @@ pub fn main() {
 
     for x in 0..nx {
         for y in 0..ny {
-            let mut col = Vector3::zero();
+            let mut col = Color::black();
             for _s in 0..ns {
                 let ru: f64 = rng.gen();
                 let u = (x as f64 + ru) as f64 / nx as f64;
@@ -44,25 +46,23 @@ pub fn main() {
                 col = col + get_color(&scene, &r, 1);
             }
 
-            col = col / ns as f64;
-            col = Vector3::from_xyz(col.x.sqrt(), col.y.sqrt(), col.z.sqrt());
-            col = 255. * col;
-            img.put_pixel(x, y, Rgba([col.x as u8, col.y as u8, col.z as u8, 0]));
+            col = col / ns as f32;
+            img.put_pixel(x, y, col.to_rgba());
         }
         progress.inc();
     }
 
-    img.save("tt1.png").unwrap();
+    img.save("ttsm.png").unwrap();
     progress.finish_print("done");
 }
 
 fn init_scene() -> Scene {
     let diffuse_mat = Material {
-        albedo: 0.5,
+        albedo: 0.3,
         surface: Surface::Diffuse
     };
     let metall_mat = Material {
-        albedo: 1.,
+        albedo: 0.8,
         surface: Surface::Reflective {
             reflectivity: 0.5
         }
@@ -73,17 +73,17 @@ fn init_scene() -> Scene {
             reflectivity: 0.1
         }
     };
-    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -1.), 0.5, diffuse_mat);
+    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -2.), 0.5, diffuse_mat);
     let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., diffuse_mat);
-    let metall_sphere = Sphere::new(Vector3::from_xyz(1., 0., -1.), 0.5, metall_mat);
-    let metall_sphere1 = Sphere::new(Vector3::from_xyz(-1., 0., -1.), 0.5, metall_mat1);
+    let metall_sphere = Sphere::new(Vector3::from_xyz(1., 0., -2.), 0.5, metall_mat);
+    let metall_sphere1 = Sphere::new(Vector3::from_xyz(-1., 0., -2.), 0.5, metall_mat1);
     let mut scene = Scene {
         items: Vec::new()
     };
+    scene.items.push(sphere1);
     scene.items.push(sphere);
     scene.items.push(metall_sphere);
     scene.items.push(metall_sphere1);
-    scene.items.push(sphere1);
 
     scene
 }
