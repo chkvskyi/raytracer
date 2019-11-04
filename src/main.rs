@@ -15,9 +15,9 @@ use render::get_color;
 use color::Color;
 
 pub fn main() {
-    let nx = 1920;
-    let ny = 960;
-    let ns = 100;
+    let nx = 400;
+    let ny = 200;
+    let ns = 20;
 
     let mut rng = rand::thread_rng();
     let mut progress = ProgressBar::new(nx as u64);
@@ -57,27 +57,12 @@ pub fn main() {
 }
 
 fn init_scene() -> Scene {
-    let metall_mat = Material {
-        color: Color::white(),
-        albedo: 0.8,
-        surface: Surface::Reflective {
-            reflectivity: 0.5
-        }
-    };
-    let metall_mat1 = Material {
-        color: Color::white(),
-        albedo: 1.,
-        surface: Surface::Reflective {
-            reflectivity: 0.1
-        }
-    };
-
     let diff_center_mat = Material {
         color: Color::red(),
         albedo: 0.3,
         surface: Surface::Diffuse
     };
-    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -2.), 0.5, diff_center_mat);
+    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -1.), 0.5, diff_center_mat);
 
     let diff_bottom_mat = Material {
         color: Color::green(),
@@ -86,15 +71,30 @@ fn init_scene() -> Scene {
     };
     let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., diff_bottom_mat);
 
-    let metall_sphere = Sphere::new(Vector3::from_xyz(1., 0., -2.), 0.5, metall_mat);
-    let metall_sphere1 = Sphere::new(Vector3::from_xyz(-1., 0., -2.), 0.5, metall_mat1);
+    let metall_mat = Material {
+        color: Color::white(),
+        albedo: 0.8,
+        surface: Surface::Reflective {
+            reflectivity: 0.5
+        }
+    };
+    let right_sphere = Sphere::new(Vector3::from_xyz(1., 0., -1.), 0.5, metall_mat);
+
+    let glass_mat = Material {
+        color: Color::white(),
+        albedo: 1.,
+        surface: Surface::Refractive {
+            index: 1.5
+        }
+    };
+    let left_sphere = Sphere::new(Vector3::from_xyz(-1., 0., -1.), 0.5, glass_mat);
     let mut scene = Scene {
         items: Vec::new()
     };
     scene.items.push(sphere1);
     scene.items.push(sphere);
-    scene.items.push(metall_sphere);
-    scene.items.push(metall_sphere1);
+    scene.items.push(right_sphere);
+    scene.items.push(left_sphere);
 
     scene
 }
