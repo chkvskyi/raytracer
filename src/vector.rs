@@ -41,10 +41,11 @@ impl Vector3 {
     }
 
     pub fn normalize(&self) -> Vector3 {
+        let length = self.magn();
         Vector3 {
-            x: self.x / self.magn(),
-            y: self.y / self.magn(),
-            z: self.z / self.magn()
+            x: self.x / length,
+            y: self.y / length,
+            z: self.z / length
         }
     }
 

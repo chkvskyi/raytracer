@@ -15,15 +15,18 @@ use render::get_color;
 use color::Color;
 
 pub fn main() {
-    let nx = 400;
-    let ny = 200;
-    let ns = 20;
+    let nx = 1920;
+    let ny = 1080;
+    let ns = 100;
 
     let mut rng = rand::thread_rng();
     let mut progress = ProgressBar::new(nx as u64);
 
-    let camera = Camera::new(60., 2.);
-
+    let camera = Camera::new(
+        Vector3::from_xyz(-2., 2., 1.),
+        Vector3::from_xyz(0., 0., -1.),
+        Vector3::from_xyz(0., 1., 0.),
+        90., nx as f32 / ny as f32);
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
     let scene = init_scene();
