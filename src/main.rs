@@ -22,12 +22,7 @@ pub fn main() {
     let mut rng = rand::thread_rng();
     let mut progress = ProgressBar::new(nx as u64);
 
-    let camera = Camera {
-        lover_left_corner: Vector3::from_xyz(-2., -1., -1.),
-        horizontal: Vector3::from_xyz(4., 0., 0.),
-        vertical: Vector3::from_xyz(0., 2., 0.),
-        origin: Vector3::zero()
-    };
+    let camera = Camera::new(60., 2.);
 
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
