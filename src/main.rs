@@ -22,11 +22,14 @@ pub fn main() {
     let mut rng = rand::thread_rng();
     let mut progress = ProgressBar::new(nx as u64);
 
+    let camera_pos = Vector3::from_xyz(9., 6., 3.);
+    let camera_look_at = Vector3::from_xyz(0., 0., 0.);
+    let focus_dist = (camera_pos - camera_look_at).magn();
     let camera = Camera::new(
-        Vector3::from_xyz(-2., 2., 1.),
-        Vector3::from_xyz(0., 0., -1.),
+        camera_pos,
+        camera_look_at,
         Vector3::from_xyz(0., 1., 0.),
-        90., nx as f32 / ny as f32);
+        30., nx as f32 / ny as f32, 0.1, focus_dist);
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
     let scene = init_scene();
@@ -50,49 +53,86 @@ pub fn main() {
         progress.inc();
     }
 
-    img.save("output.png").unwrap();
+    img.save("output2.png").unwrap();
     progress.finish_print("done");
 }
 
 fn init_scene() -> Scene {
-    let diff_center_mat = Material {
-        color: Color::red(),
-        albedo: 0.3,
-        surface: Surface::Diffuse
-    };
-    let sphere = Sphere::new(Vector3::from_xyz(0., 0., -1.), 0.5, diff_center_mat);
-
     let diff_bottom_mat = Material {
         color: Color::green(),
         albedo: 0.3,
         surface: Surface::Diffuse
     };
-    let sphere1 = Sphere::new(Vector3::from_xyz(0., -100.5, -1.), 100., diff_bottom_mat);
+    let sphere1 = Sphere::new(Vector3::from_xyz(0., -1000., -1.), 1000., diff_bottom_mat);
 
-    let metall_mat = Material {
-        color: Color::white(),
-        albedo: 0.8,
-        surface: Surface::Reflective {
-            reflectivity: 0.5
-        }
-    };
-    let right_sphere = Sphere::new(Vector3::from_xyz(1., 0., -1.), 0.5, metall_mat);
-
-    let glass_mat = Material {
-        color: Color::white(),
-        albedo: 1.,
-        surface: Surface::Refractive {
-            index: 1.5
-        }
-    };
-    let left_sphere = Sphere::new(Vector3::from_xyz(-1., 0., -1.), 0.5, glass_mat);
     let mut scene = Scene {
         items: Vec::new()
     };
     scene.items.push(sphere1);
-    scene.items.push(sphere);
-    scene.items.push(right_sphere);
-    scene.items.push(left_sphere);
 
+    let mut rng = rand::thread_rng();
+    for a in -11..11 {
+        for b in -11..11 {
+            let mat_prob: f64 = rng.gen();
+            let center = Vector3::from_xyz(a as f64 + 0.9 * rng.gen::<f64>(), 0.2, b as f64 + 0.9 * rng.gen::<f64>());
+
+            if (center - Vector3::from_xyz(4., 0.2, 0.)).magn() > 0.9 {
+                if mat_prob < 0.8 {
+                    let diff_mat = Material {
+                        color: Color::new(rng.gen(), rng.gen(), rng.gen()),
+                        albedo: rng.gen(),
+                        surface: Surface::Diffuse
+                    };
+                    let sphere = Sphere::new(center, 0.2, diff_mat);
+                    scene.items.push(sphere);
+                } else if mat_prob < 0.95 {
+                    let metall_mat = Material {
+                        color: Color::white(),
+                        albedo: 0.8,
+                        surface: Surface::Reflective {
+                            reflectivity: rng.gen()
+                        }
+                    };
+                    let right_sphere = Sphere::new(center, 0.2, metall_mat);
+                    scene.items.push(right_sphere);
+                } else {
+                    let glass_mat = Material {
+                        color: Color::white(),
+                        albedo: 1.,
+                        surface: Surface::Refractive {
+                            index: 1.5
+                        }
+                    };
+                    let left_sphere = Sphere::new(center, 0.2, glass_mat);
+                    scene.items.push(left_sphere);
+                }
+            }
+        }
+    }
+    scene.items.push(
+        Sphere::new(Vector3::from_xyz(0., 1., 0.), 1., Material {
+                color: Color::white(),
+                albedo: 0.8,
+                surface: Surface::Refractive {
+                    index: 1.5
+                }
+            })
+    );
+    scene.items.push(
+        Sphere::new(Vector3::from_xyz(-4., 1., 0.), 1., Material {
+                color: Color::new(0.4, 0.2, 0.1),
+                albedo: 0.8,
+                surface: Surface::Diffuse
+            })
+    );
+    scene.items.push(
+        Sphere::new(Vector3::from_xyz(4., 1., 0.), 1., Material {
+                color: Color::new(0.4, 0.2, 0.1),
+                albedo: 0.8,
+                surface: Surface::Reflective {
+                    reflectivity: 0.
+                }
+            })
+    );
     scene
 }
