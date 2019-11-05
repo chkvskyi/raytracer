@@ -1,6 +1,6 @@
 use crate::scene::{Scene, Surface};
 use crate::ray::Ray;
-use crate::vector::Vector3;
+use crate::vector::Vec3;
 use crate::color::Color;
 
 use rand::Rng;
@@ -26,7 +26,7 @@ pub fn get_color(scene: &Scene, ray: &Ray, depth: u8) -> Color {
                     material.albedo as f32 * get_color(&scene, &scattered, depth + 1)
                 }
                 Surface::Refractive { index } => {
-                    let outward_normal: Vector3;
+                    let outward_normal: Vec3;
                     let reflected = reflect(ray.direction().normalize(), normal);
                     let ni_over_nt: f32;
                     let cosine: f32;
@@ -59,18 +59,18 @@ pub fn get_color(scene: &Scene, ray: &Ray, depth: u8) -> Color {
         },
         None => {
             let unit = ray.direction().normalize();
-            let t = 0.5 * (unit.y + 1.0);
+            let t = 0.5 * (unit.y() + 1.0);
             let bg = Color::new(0.5, 0.7, 1.0);
             (1.0 - t) as f32 * Color::white() + t as f32 * bg
         }
     }
 }
 
-fn reflect(v: Vector3, n: Vector3) -> Vector3 {
+fn reflect(v: Vec3, n: Vec3) -> Vec3 {
     v + (- 2. * v.dot(&n) * n)
 }
 
-fn refract(v: Vector3, n: Vector3, ni_over_nt: f32) -> Option<Vector3> {
+fn refract(v: Vec3, n: Vec3, ni_over_nt: f32) -> Option<Vec3> {
     let uv = v.normalize();
     let dt = uv.dot(&n);
     let discriminant: f64 = 1. - ni_over_nt as f64 * ni_over_nt as f64 * (1. - dt * dt);
@@ -86,15 +86,11 @@ fn schlick(cosine: f32, ref_ind: f32) -> f32 {
     r0 + (1. - r0) * (1. - cosine).powi(5)
 }
 
-fn random_unit_sphere() -> Vector3 {
-    let mut p = Vector3::from_xyz(0., 0., 0.);
+fn random_unit_sphere() -> Vec3 {
+    let mut p = Vec3::new(0., 0., 0.);
     let mut rng = rand::thread_rng();
     while p.magn() * p.magn() < 1. {
-        p = Vector3 {
-            x: rng.gen(),
-            y: rng.gen(),
-            z: rng.gen()
-        }
+        p = Vec3::new(rng.gen(), rng.gen(), rng.gen());
     }
     p
 }

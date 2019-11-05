@@ -1,17 +1,17 @@
 use std::f64;
 
-use crate::vector::Vector3;
+use crate::vector::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
-    center: Vector3,
+    center: Vec3,
     radius: f64,
     material: Material
 }
 impl Sphere {
-    pub fn new(center: Vector3, radius: f64, material: Material) -> Sphere {
+    pub fn new(center: Vec3, radius: f64, material: Material) -> Sphere {
         Sphere {
             center: center,
             radius: radius,
@@ -32,7 +32,7 @@ impl Sphere {
         }
     }
 
-    pub fn center(&self) -> Vector3 {
+    pub fn center(&self) -> Vec3 {
         self.center
     }
 

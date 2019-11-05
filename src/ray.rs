@@ -1,24 +1,24 @@
-use crate::vector::Vector3;
+use crate::vector::Vec3;
 
 pub struct Ray {
-    origin: Vector3,
-    direction: Vector3
+    origin: Vec3,
+    direction: Vec3
 }
 
 impl Ray {
-    pub fn point_at(&self, t: f64) -> Vector3 {
+    pub fn point_at(&self, t: f64) -> Vec3 {
         self.origin + t * self.direction
     }
 
-    pub fn direction(&self) -> Vector3 {
+    pub fn direction(&self) -> Vec3 {
         self.direction.clone()
     }
 
-    pub fn origin(&self) -> Vector3 {
+    pub fn origin(&self) -> Vec3 {
         self.origin.clone()
     }
 
-    pub fn new(origin: Vector3, dir: Vector3) -> Ray {
+    pub fn new(origin: Vec3, dir: Vec3) -> Ray {
         Ray {
             origin: origin,
             direction: dir
