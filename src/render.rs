@@ -12,17 +12,17 @@ pub fn get_color(scene: &Scene, ray: &Ray, depth: u8) -> Color {
     match scene.trace(&ray) {
         Some(intersection) => {
             let material = intersection.intersected.material();
-            let normal = (ray.point_at(intersection.dist) - intersection.intersected.center()).normalize();
+            let normal = (ray.point_at(intersection.dist) - intersection.intersected.center(ray.time())).normalize();
 
             match material.surface {
                 Surface::Diffuse => {
                     let p = ray.point_at(intersection.dist);
                     let target = normal + p + random_unit_sphere();
-                    return material.albedo * material.color * get_color(&scene, &Ray::new(p, target - p), depth + 1)
+                    return material.albedo * material.color * get_color(&scene, &Ray::new(p, target - p, ray.time()), depth + 1)
                 },
                 Surface::Reflective { reflectivity } => {
                     let reflected = reflect(ray.direction().normalize(), normal);
-                    let scattered = Ray::new(intersection.intersected.center(), reflected + reflectivity as f64 * random_unit_sphere());
+                    let scattered = Ray::new(intersection.intersected.center(ray.time()), reflected + reflectivity as f64 * random_unit_sphere(), ray.time());
                     material.albedo as f32 * get_color(&scene, &scattered, depth + 1)
                 }
                 Surface::Refractive { index } => {
@@ -47,12 +47,12 @@ pub fn get_color(scene: &Scene, ray: &Ray, depth: u8) -> Color {
                             let mut rng = rand::thread_rng();
                             let random: f32 = rng.gen();
                             if random < prob {
-                                get_color(&scene, &Ray::new(intersection.intersected.center(), reflected), depth + 1)
+                                get_color(&scene, &Ray::new(intersection.intersected.center(ray.time()), reflected, ray.time()), depth + 1)
                             } else {
-                                get_color(&scene, &Ray::new(intersection.intersected.center(), refracted), depth + 1)
+                                get_color(&scene, &Ray::new(intersection.intersected.center(ray.time()), refracted, ray.time()), depth + 1)
                             }
                         },
-                        None => get_color(&scene, &Ray::new(intersection.intersected.center(), reflected), depth + 1)
+                        None => get_color(&scene, &Ray::new(intersection.intersected.center(ray.time()), reflected, ray.time()), depth + 1)
                     }
                 }
             }

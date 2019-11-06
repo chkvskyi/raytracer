@@ -9,14 +9,14 @@ pub mod render;
 pub mod color;
 
 use vector::Vec3;
-use scene::{Scene, Sphere, Material, Surface};
+use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem};
 use camera::Camera;
 use render::get_color;
 use color::Color;
 
 pub fn main() {
-    let nx = 1920;
-    let ny = 1080;
+    let nx = 600;
+    let ny = 400;
     let ns = 100;
 
     let mut rng = rand::thread_rng();
@@ -29,7 +29,7 @@ pub fn main() {
         camera_pos,
         camera_look_at,
         Vec3::new(0., 1., 0.),
-        30., nx as f32 / ny as f32, 0.1, focus_dist);
+        30., nx as f32 / ny as f32, 0.1, focus_dist, 0., 1.);
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
     let scene = init_scene();
@@ -53,7 +53,7 @@ pub fn main() {
         progress.inc();
     }
 
-    img.save("output2.png").unwrap();
+    img.save("output.png").unwrap();
     progress.finish_print("done");
 }
 
@@ -63,12 +63,12 @@ fn init_scene() -> Scene {
         albedo: 0.3,
         surface: Surface::Diffuse
     };
-    let sphere1 = Sphere::new(Vec3::new(0., -1000., -1.), 1000., diff_bottom_mat);
+    let big_sphere = Sphere::new(Vec3::new(0., -1000., -1.), 1000., diff_bottom_mat);
 
     let mut scene = Scene {
         items: Vec::new()
     };
-    scene.items.push(sphere1);
+    scene.items.push(SceneItem::Sphere(big_sphere));
 
     let mut rng = rand::thread_rng();
     for a in -11..11 {
@@ -83,8 +83,8 @@ fn init_scene() -> Scene {
                         albedo: rng.gen(),
                         surface: Surface::Diffuse
                     };
-                    let sphere = Sphere::new(center, 0.2, diff_mat);
-                    scene.items.push(sphere);
+                    let sphere = MovingSphere::new(center, center + Vec3::new(rng.gen(), rng.gen(), rng.gen()), 0., 1., 0.5, diff_mat);
+                    scene.items.push(SceneItem::MovingSphere(sphere));
                 } else if mat_prob < 0.95 {
                     let metall_mat = Material {
                         color: Color::white(),
@@ -93,8 +93,8 @@ fn init_scene() -> Scene {
                             reflectivity: rng.gen()
                         }
                     };
-                    let right_sphere = Sphere::new(center, 0.2, metall_mat);
-                    scene.items.push(right_sphere);
+                    let metall_sphere = Sphere::new(center, 0.2, metall_mat);
+                    scene.items.push(SceneItem::Sphere(metall_sphere));
                 } else {
                     let glass_mat = Material {
                         color: Color::white(),
@@ -104,35 +104,35 @@ fn init_scene() -> Scene {
                         }
                     };
                     let left_sphere = Sphere::new(center, 0.2, glass_mat);
-                    scene.items.push(left_sphere);
+                    scene.items.push(SceneItem::Sphere(left_sphere));
                 }
             }
         }
     }
-    scene.items.push(
-        Sphere::new(Vec3::new(0., 1., 0.), 1., Material {
+
+    let s1 = Sphere::new(Vec3::new(0., 1., 0.), 1., Material {
                 color: Color::white(),
                 albedo: 0.8,
                 surface: Surface::Refractive {
                     index: 1.5
                 }
-            })
-    );
-    scene.items.push(
-        Sphere::new(Vec3::new(-4., 1., 0.), 1., Material {
+            });
+
+    let s2 = Sphere::new(Vec3::new(-4., 1., 0.), 1., Material {
                 color: Color::new(0.4, 0.2, 0.1),
                 albedo: 0.8,
                 surface: Surface::Diffuse
-            })
-    );
-    scene.items.push(
-        Sphere::new(Vec3::new(4., 1., 0.), 1., Material {
-                color: Color::new(0.4, 0.2, 0.1),
-                albedo: 0.8,
-                surface: Surface::Reflective {
-                    reflectivity: 0.
-                }
-            })
-    );
+            });
+
+    let s3 = Sphere::new(Vec3::new(4., 1., 0.), 1., Material {
+        color: Color::new(0.4, 0.2, 0.1),
+        albedo: 0.8,
+        surface: Surface::Reflective {
+            reflectivity: 0.
+        }
+    });
+    scene.items.push(SceneItem::Sphere(s1));
+    scene.items.push(SceneItem::Sphere(s2));
+    scene.items.push(SceneItem::Sphere(s3));
     scene
 }

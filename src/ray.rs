@@ -2,7 +2,8 @@ use crate::vector::Vec3;
 
 pub struct Ray {
     origin: Vec3,
-    direction: Vec3
+    direction: Vec3,
+    time: f64
 }
 
 impl Ray {
@@ -18,10 +19,11 @@ impl Ray {
         self.origin.clone()
     }
 
-    pub fn new(origin: Vec3, dir: Vec3) -> Ray {
-        Ray {
-            origin: origin,
-            direction: dir
-        }
+    pub fn time(&self) -> f64 {
+        self.time
+    }
+
+    pub fn new(origin: Vec3, direction: Vec3, time: f64) -> Ray {
+        Ray { origin, direction, time }
     }
 }
