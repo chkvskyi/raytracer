@@ -83,7 +83,7 @@ fn init_scene() -> Scene {
                         albedo: rng.gen(),
                         surface: Surface::Diffuse
                     };
-                    let sphere = MovingSphere::new(center, center + Vec3::new(rng.gen(), rng.gen(), rng.gen()), 0., 1., 0.5, diff_mat);
+                    let sphere = MovingSphere::new(center, Vec3::new(center.x(), center.y() + rng.gen::<f64>(), center.z()), 0., 1., 0.2, diff_mat);
                     scene.items.push(SceneItem::MovingSphere(sphere));
                 } else if mat_prob < 0.95 {
                     let metall_mat = Material {
