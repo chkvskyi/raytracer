@@ -58,6 +58,15 @@ impl Vec3 {
     pub fn set_z(&mut self, z: f64) {
         self.z = z;
     }
+
+    pub fn get_ind(&self, ind: u8) -> f64 {
+        match ind {
+            0 => self.x,
+            1 => self.y,
+            2 => self.z,
+            _ => 0.
+        }
+    }
 }
 
 impl Add for Vec3 {
