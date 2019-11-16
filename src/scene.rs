@@ -2,7 +2,7 @@ use std::f64;
 use crate::vector::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
-use crate::AABB::{AABB, BoundingBox, surrounding_box};
+use crate::aabb::{AABB, BoundingBox, surrounding_box, BVH};
 use crate::intersectable::{Intersection, Intersectable};
 
 #[derive(Copy, Clone, Debug)]

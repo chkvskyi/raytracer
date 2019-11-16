@@ -11,7 +11,7 @@ pub trait Intersectable {
 }
 
 impl Intersectable for Sphere {
-    fn intersect(&self, ray: &Ray) -> f64{
+    fn intersect(&self, ray: &Ray) -> f64 {
         let oc = ray.origin() - self.center();
         let a = ray.direction().dot(&ray.direction());
         let b = 2.0 * ray.direction().dot(&oc);
@@ -41,7 +41,7 @@ impl Intersectable for MovingSphere {
 }
 
 impl Intersectable for SceneItem {
-    fn intersect(&self, ray: &Ray) -> f64{
+    fn intersect(&self, ray: &Ray) -> f64 {
         match self {
             SceneItem::Sphere(s) => s.intersect(ray),
             SceneItem::MovingSphere(s) => s.intersect(ray)

@@ -1,3 +1,4 @@
+#![feature(inner_deref)]
 use image::{DynamicImage, GenericImage};
 use rand::Rng;
 use pbr::ProgressBar;
@@ -8,7 +9,7 @@ pub mod scene;
 pub mod camera;
 pub mod render;
 pub mod color;
-pub mod AABB;
+pub mod aabb;
 
 use vector::Vec3;
 use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem};
