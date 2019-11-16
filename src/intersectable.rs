@@ -43,8 +43,8 @@ impl Intersectable for MovingSphere {
 impl Intersectable for SceneItem {
     fn intersect(&self, ray: &Ray) -> f64 {
         match self {
-            SceneItem::Sphere(s) => s.intersect(ray),
-            SceneItem::MovingSphere(s) => s.intersect(ray)
+            SceneItem::Sphere(ref s) => s.intersect(&ray),
+            SceneItem::MovingSphere(ref s) => s.intersect(&ray)
         }
     }
 }

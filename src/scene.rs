@@ -126,10 +126,19 @@ pub struct Material {
 }
 
 pub struct Scene {
-    pub items: Vec<SceneItem>
+    items: Vec<SceneItem>,
+    bvh: BVH
 }
 
 impl Scene {
+    pub fn new(mut items: Vec<SceneItem>) -> Scene {
+        let scene_bvh = BVH::new(&mut items[..]);
+        Scene {
+            items: items,
+            bvh: scene_bvh
+        }
+    }
+
     pub fn trace(&self, r: &Ray) -> Option<Intersection> {
         let mut p: f64 = f64::MAX;
         let mut i: Option<SceneItem> = None;
@@ -148,6 +157,7 @@ impl Scene {
             }),
             None => None
         }
+        // self.bvh.intersect(&r)
     }
 }
 

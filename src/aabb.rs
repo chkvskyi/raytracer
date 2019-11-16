@@ -6,6 +6,7 @@ use rand::Rng;
 
 use std::f64;
 use std::cmp::Ordering;
+use std::mem;
 
 #[derive(Copy, Clone, Debug)]
 pub struct AABB {
@@ -22,30 +23,50 @@ impl AABB {
 
     pub fn max(&self) -> Vec3 { self.max }
 
-    pub fn intersect(&self, ray: &Ray, tmin: f64, tmax: f64) -> bool {
-        for a in 0..3 {
-            let inv_d = 1. / ray.direction().get_ind(a);
-            let mut t0 = (self.min.get_ind(a) - ray.origin().get_ind(a)) * inv_d;
-            let mut t1 = (self.max.get_ind(a) - ray.origin().get_ind(a)) * inv_d;
-            if inv_d < 0. {
-                let s = t1;
-                t1 = t0;
-                t0 = s;
-            }
-            let t_min = match t0 > tmin {
-                true => t0,
-                false => tmin
-            };
-            let t_max = match t1 < tmax {
-                true => t1,
-                false => tmax
-            };
+    pub fn intersect(&self, ray: &Ray) -> bool {
+        let invn_dir_x = 1. / ray.direction().x();
+        let invn_dir_y = 1. / ray.direction().y();
+        let invn_dir_z = 1. / ray.direction().z();
 
-            if t_max <= t_min {
-                return false
-            }
+        let mut tx_min = (self.min.x() - ray.origin().x()) * invn_dir_x;
+        let mut tx_max = (self.max.x() - ray.origin().x()) * invn_dir_x;
+        if invn_dir_x < 0. {
+            mem::swap(&mut tx_min, &mut tx_max);
         }
-        true
+        let mut ty_min = (self.min.y() - ray.origin().y()) * invn_dir_y;
+        let mut ty_max = (self.max.y() - ray.origin().y()) * invn_dir_y;
+        if invn_dir_y < 0. {
+            mem::swap(&mut ty_min, &mut ty_max);
+        }
+
+        if (tx_min > ty_max) || (ty_min > tx_max) {
+            return false;
+        }
+
+        if ty_min > tx_min {
+            tx_min = ty_min;
+        }
+        if ty_max < tx_max {
+            tx_max = ty_max
+        }
+
+        let mut tz_min = (self.min.z() - ray.origin().z()) * invn_dir_z;
+        let mut tz_max = (self.max.z() - ray.origin().z()) * invn_dir_z;
+        if invn_dir_z < 0. {
+            mem::swap(&mut tz_min, &mut tz_max);
+        }
+
+        if tx_min > tz_max || tz_min > tx_max {
+            return false
+        }
+        // if tz_min > tx_min {
+        //     tx_min = tz_min
+        // }
+        // if tz_max < tx_max {
+        //     tx_max = tz_max
+        // }
+
+        return true
     }
 }
 
@@ -78,7 +99,7 @@ pub struct BVH {
 }
 
 impl BVH {
-    pub fn new(items: &mut [SceneItem], time0: f64, time1: f64) -> BVH {
+    pub fn new(items: &mut [SceneItem]) -> BVH {
         let axis_ind = (3. * rand::thread_rng().gen::<f32>()) as u8;
         if axis_ind == 0 {
             items.sort_by(|a, b| a.bounding_box().min().x().partial_cmp(&b.bounding_box().min().x()).unwrap_or(Ordering::Equal));
@@ -98,8 +119,8 @@ impl BVH {
         } else {
             let middle = (items.len() / 2) as usize;
 
-            let left = BVH::new(&mut items[0..middle], time0, time1);
-            let right = BVH::new(&mut items[..middle], time0, time1);
+            let left = BVH::new(&mut items[0..middle]);
+            let right = BVH::new(&mut items[middle..]);
             let l_bb = left.bounding_box();
             let r_bb = right.bounding_box();
 
@@ -118,61 +139,55 @@ impl BVH {
 
     pub fn item(&self) -> Option<SceneItem> { self.item }
 
-    pub fn intersect(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Intersection> {
-        if self.bbox.intersect(&ray, t_min, t_max) {
-            match self.left() {
-                Some(left) => {
-                    match self.right() {
-                        Some(right) => {
-                            let intersect_left = left.intersect(&ray, t_min, t_max);
-                            let intersect_right = right.intersect(&ray, t_min, t_max);
+    pub fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+        match self.item {
+            Some(item) => {
+                let point = item.intersect(&ray);
+                if point > 0. {
+                    return Some(Intersection {
+                        intersected: item,
+                        dist: point
+                    })
+                } else {
+                    return None;
+                }
+            },
+            None => {
+                if self.bbox.intersect(&ray) {
+                    let l = self.left().unwrap();
+                    let r = self.right().unwrap();
 
-                            match intersect_left {
-                                Some(i_left) => {
-                                    match intersect_right {
-                                        Some(i_right) => {
-                                            if i_left.dist < i_right.dist {
-                                                return Some(i_left);
-                                            } else {
-                                                return Some(i_right);
-                                            }
-                                        },
-                                        None => None
+                    let intersect_left = l.intersect(&ray);
+                    let intersect_right = r.intersect(&ray);
+
+                    match intersect_left {
+                        Some(i_left) => {
+                            match intersect_right {
+                                Some(i_right) => {
+                                    if i_left.dist < i_right.dist {
+                                        return Some(i_left);
+                                    } else {
+                                        return Some(i_right);
                                     }
                                 },
                                 None => {
-                                    match intersect_right {
-                                        Some(i_right) => {
-                                            return Some(i_right);
-                                        },
-                                        None =>  None
-                                    }
+                                    return Some(i_left)
                                 }
                             }
                         },
-                        // BVH constructed wrong if some BVH has only left leaf
-                        None => panic!("No right item")
-                    }
-                },
-                None => {
-                    match self.item {
-                        Some(item) => {
-                            let point = item.intersect(&ray);
-                            if point > 0. {
-                                return Some(Intersection {
-                                    intersected: item,
-                                    dist: point
-                                })
-                            } else {
-                                return None;
+                        None => {
+                            match intersect_right {
+                                Some(i_right) => {
+                                    return Some(i_right);
+                                },
+                                None =>  None
                             }
-                        },
-                        None => None
+                        }
                     }
+                } else {
+                    return None;
                 }
             }
-        } else {
-            return None
         }
     }
 }
