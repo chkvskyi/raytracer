@@ -8,7 +8,7 @@ pub mod scene;
 pub mod camera;
 pub mod render;
 pub mod color;
-pub mod aabb;
+pub mod AABB;
 
 use vector::Vec3;
 use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem};

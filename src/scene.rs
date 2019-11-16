@@ -2,7 +2,7 @@ use std::f64;
 use crate::vector::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
-use crate::aabb::aabb;
+use crate::AABB::{AABB, BoundingBox, surrounding_box};
 use crate::intersectable::{Intersection, Intersectable};
 
 #[derive(Copy, Clone, Debug)]
@@ -31,9 +31,11 @@ impl Sphere {
     pub fn material(&self) -> Material {
         self.material
     }
+}
 
-    pub fn bounding_box(&self) -> aabb {
-        return aabb::new(
+impl BoundingBox for Sphere {
+    fn bounding_box(&self) -> AABB {
+        return AABB::new(
             self.center - Vec3::new(self.radius, self.radius, self.radius),
             self.center + Vec3::new(self.radius, self.radius, self.radius))
     }
@@ -62,13 +64,15 @@ impl MovingSphere {
     }
 
     pub fn radius(&self) -> f64 { self.radius }
+}
 
-    pub fn bounding_box(&self) -> aabb {
-        let start_bb = aabb::new(
+impl BoundingBox for MovingSphere {
+    fn bounding_box(&self) -> AABB {
+        let start_bb = AABB::new(
             self.center(self.t0) - Vec3::new(self.radius, self.radius, self.radius),
             self.center(self.t0) + Vec3::new(self.radius, self.radius, self.radius),
         );
-        let finish_bb = aabb::new(
+        let finish_bb = AABB::new(
             self.center(self.t1) - Vec3::new(self.radius, self.radius, self.radius),
             self.center(self.t1) + Vec3::new(self.radius, self.radius, self.radius),
         );
@@ -96,8 +100,10 @@ impl SceneItem {
             SceneItem::MovingSphere(ref s) => s.center(time)
         }
     }
+}
 
-    pub fn bounding_box(&self) -> aabb {
+impl BoundingBox for SceneItem {
+    fn bounding_box(&self) -> AABB {
         match self {
             SceneItem::Sphere(ref s) => s.bounding_box(),
             SceneItem::MovingSphere(ref s) => s.bounding_box()
@@ -143,9 +149,10 @@ impl Scene {
             None => None
         }
     }
+}
 
-    // // TODO: use trait
-    pub fn bounding_box(&self, t0: f64, t1: f64, b: &aabb) -> aabb {
+impl BoundingBox for Scene {
+    fn bounding_box(&self) -> AABB {
         let mut temp_box = self.items[0].bounding_box();
 
         for item in self.items.iter() {
@@ -153,19 +160,4 @@ impl Scene {
         }
         return temp_box
     }
-}
-
-fn surrounding_box(box0: &aabb, box1: &aabb) -> aabb {
-    let small = Vec3::new(
-        f64::min(box0.min().x(), box1.min().x()),
-        f64::min(box0.min().y(), box1.min().y()),
-        f64::min(box0.min().z(), box1.min().z())
-    );
-    let big = Vec3::new(
-        f64::max(box0.max().x(), box1.max().x()),
-        f64::max(box0.max().y(), box1.max().y()),
-        f64::max(box0.max().z(), box1.max().z())
-    );
-
-    aabb::new(small, big)
 }

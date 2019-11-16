@@ -2,14 +2,14 @@ use crate::vector::Vec3;
 use crate::ray::Ray;
 
 #[derive(Copy, Clone, Debug)]
-pub struct aabb {
+pub struct AABB {
     min: Vec3,
     max: Vec3
 }
 
-impl aabb {
-    pub fn new(a: Vec3, b: Vec3) -> aabb {
-        aabb { min: a, max: b }
+impl AABB {
+    pub fn new(a: Vec3, b: Vec3) -> AABB {
+        AABB { min: a, max: b }
     }
 
     pub fn min(&self) -> Vec3 { self.min }
@@ -41,4 +41,23 @@ impl aabb {
         }
         true
     }
+}
+
+pub trait BoundingBox {
+    fn bounding_box(&self) -> AABB;
+}
+
+pub fn surrounding_box(box0: &AABB, box1: &AABB) -> AABB {
+    let small = Vec3::new(
+        f64::min(box0.min().x(), box1.min().x()),
+        f64::min(box0.min().y(), box1.min().y()),
+        f64::min(box0.min().z(), box1.min().z())
+    );
+    let big = Vec3::new(
+        f64::max(box0.max().x(), box1.max().x()),
+        f64::max(box0.max().y(), box1.max().y()),
+        f64::max(box0.max().z(), box1.max().z())
+    );
+
+    AABB::new(small, big)
 }
