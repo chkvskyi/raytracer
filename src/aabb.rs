@@ -1,6 +1,7 @@
 use crate::vector::Vec3;
 use crate::ray::Ray;
 
+#[derive(Copy, Clone, Debug)]
 pub struct aabb {
     min: Vec3,
     max: Vec3
@@ -40,8 +41,4 @@ impl aabb {
         }
         true
     }
-}
-
-pub trait BoundingBox {
-    // TODO
 }

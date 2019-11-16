@@ -2,8 +2,7 @@ use std::f64;
 use crate::vector::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
-
-// TODO: add Plane geometry
+use crate::aabb::aabb;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
@@ -44,6 +43,12 @@ impl Sphere {
     pub fn material(&self) -> Material {
         self.material
     }
+
+    pub fn bounding_box(&self) -> aabb {
+        return aabb::new(
+            self.center - Vec3::new(self.radius, self.radius, self.radius),
+            self.center + Vec3::new(self.radius, self.radius, self.radius))
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -80,6 +85,19 @@ impl MovingSphere {
     pub fn center(&self, time: f64) -> Vec3 {
         self.center0 + ((time - self.t0) / (self.t1 - self.t0)) * (self.center1 - self.center0)
     }
+
+    pub fn bounding_box(&self) -> aabb {
+        let start_bb = aabb::new(
+            self.center(self.t0) - Vec3::new(self.radius, self.radius, self.radius),
+            self.center(self.t0) + Vec3::new(self.radius, self.radius, self.radius),
+        );
+        let finish_bb = aabb::new(
+            self.center(self.t1) - Vec3::new(self.radius, self.radius, self.radius),
+            self.center(self.t1) + Vec3::new(self.radius, self.radius, self.radius),
+        );
+
+        surrounding_box(&start_bb, &finish_bb)
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -106,6 +124,13 @@ impl SceneItem {
         match self {
             SceneItem::Sphere(ref s) => s.intersect(&ray),
             SceneItem::MovingSphere(ref s) => s.intersect(&ray)
+        }
+    }
+
+    pub fn bounding_box(&self) -> aabb {
+        match self {
+            SceneItem::Sphere(ref s) => s.bounding_box(),
+            SceneItem::MovingSphere(ref s) => s.bounding_box()
         }
     }
 }
@@ -153,4 +178,29 @@ impl Scene {
             None => None
         }
     }
+
+    // // TODO: use trait
+    pub fn bounding_box(&self, t0: f64, t1: f64, b: &aabb) -> aabb {
+        let mut temp_box = self.items[0].bounding_box();
+
+        for item in self.items.iter() {
+            temp_box = surrounding_box(&item.bounding_box(), &temp_box);
+        }
+        return temp_box
+    }
+}
+
+fn surrounding_box(box0: &aabb, box1: &aabb) -> aabb {
+    let small = Vec3::new(
+        f64::min(box0.min().x(), box1.min().x()),
+        f64::min(box0.min().y(), box1.min().y()),
+        f64::min(box0.min().z(), box1.min().z())
+    );
+    let big = Vec3::new(
+        f64::max(box0.max().x(), box1.max().x()),
+        f64::max(box0.max().y(), box1.max().y()),
+        f64::max(box0.max().z(), box1.max().z())
+    );
+
+    aabb::new(small, big)
 }
