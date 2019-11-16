@@ -3,6 +3,7 @@ use crate::vector::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
 use crate::aabb::aabb;
+use crate::intersectable::{Intersection, Intersectable};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
@@ -16,19 +17,6 @@ impl Sphere {
             center: center,
             radius: radius,
             material: material
-        }
-    }
-
-    pub fn intersect(&self, ray: &Ray) -> f64 {
-        let oc = ray.origin() - self.center;
-        let a = ray.direction().dot(&ray.direction());
-        let b = 2.0 * ray.direction().dot(&oc);
-        let c = oc.dot(&oc) - self.radius * self.radius;
-        let discriminant = b * b - 4.0 * a * c;
-        if discriminant < 0. {
-            return -1.;
-        } else {
-            return (-b - discriminant.sqrt()) / (2.0 * a)
         }
     }
 
@@ -65,19 +53,6 @@ impl MovingSphere {
         MovingSphere { center0, center1, t0, t1, radius, material }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> f64 {
-        let oc = ray.origin() - self.center(ray.time());
-        let a = ray.direction().dot(&ray.direction());
-        let b = 2.0 * ray.direction().dot(&oc);
-        let c = oc.dot(&oc) - self.radius * self.radius;
-        let discriminant = b * b - 4.0 * a * c;
-        if discriminant < 0. {
-            return -1.;
-        } else {
-            return (-b - discriminant.sqrt()) / (2.0 * a)
-        }
-    }
-
     pub fn material(&self) -> Material {
         self.material
     }
@@ -85,6 +60,8 @@ impl MovingSphere {
     pub fn center(&self, time: f64) -> Vec3 {
         self.center0 + ((time - self.t0) / (self.t1 - self.t0)) * (self.center1 - self.center0)
     }
+
+    pub fn radius(&self) -> f64 { self.radius }
 
     pub fn bounding_box(&self) -> aabb {
         let start_bb = aabb::new(
@@ -120,13 +97,6 @@ impl SceneItem {
         }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> f64 {
-        match self {
-            SceneItem::Sphere(ref s) => s.intersect(&ray),
-            SceneItem::MovingSphere(ref s) => s.intersect(&ray)
-        }
-    }
-
     pub fn bounding_box(&self) -> aabb {
         match self {
             SceneItem::Sphere(ref s) => s.bounding_box(),
@@ -147,11 +117,6 @@ pub struct Material {
     pub color: Color,
     pub albedo: f32,
     pub surface: Surface
-}
-
-pub struct Intersection {
-    pub intersected: SceneItem,
-    pub dist: f64
 }
 
 pub struct Scene {

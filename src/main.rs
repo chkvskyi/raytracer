@@ -3,6 +3,7 @@ use rand::Rng;
 use pbr::ProgressBar;
 pub mod ray;
 pub mod vector;
+pub mod intersectable;
 pub mod scene;
 pub mod camera;
 pub mod render;
