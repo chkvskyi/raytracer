@@ -1,11 +1,6 @@
 use crate::vector::Vec3;
 use crate::ray::Ray;
 
-// use std::f64::{min, max};
-
-fn ffmin(a: f64, b: f64) -> f64 { a.min(b) }
-fn ffmax(a: f64, b: f64) -> f64 { a.max(b) }
-
 pub struct aabb {
     min: Vec3,
     max: Vec3
@@ -22,19 +17,27 @@ impl aabb {
 
     pub fn intersect(&self, ray: &Ray, tmin: f64, tmax: f64) -> bool {
         for a in 0..3 {
-            let min = self.min;
-            let max = self.max;
-            let t0: f64 = ffmin(min.get_ind(a) - ray.origin().get_ind(a) / ray.direction().get_ind(a),
-                                max.get_ind(a) - ray.origin().get_ind(a) / ray.direction().get_ind(a));
-            let t1: f64 = ffmax(min.get_ind(a) - ray.origin().get_ind(a) / ray.direction().get_ind(a),
-                                max.get_ind(a) - ray.origin().get_ind(a) / ray.direction().get_ind(a));
-            let tmin = ffmax(t0, tmin);
-            let tmax = ffmin(t1, tmax);
-            if tmax <= tmin {
+            let inv_d = 1. / ray.direction().get_ind(a);
+            let mut t0 = (self.min.get_ind(a) - ray.origin().get_ind(a)) * inv_d;
+            let mut t1 = (self.max.get_ind(a) - ray.origin().get_ind(a)) * inv_d;
+            if inv_d < 0. {
+                let s = t1;
+                t1 = t0;
+                t0 = s;
+            }
+            let t_min = match t0 > tmin {
+                true => t0,
+                false => tmin
+            };
+            let t_max = match t1 < tmax {
+                true => t1,
+                false => tmax
+            };
+
+            if t_max <= t_min {
                 return false
             }
         }
-
         true
     }
 }
