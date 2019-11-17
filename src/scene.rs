@@ -160,14 +160,3 @@ impl Scene {
         self.bvh.intersect(&r)
     }
 }
-
-impl BoundingBox for Scene {
-    fn bounding_box(&self) -> AABB {
-        let mut temp_box = self.items[0].bounding_box();
-
-        for item in self.items.iter() {
-            temp_box = surrounding_box(&item.bounding_box(), &temp_box);
-        }
-        return temp_box
-    }
-}
