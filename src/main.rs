@@ -72,44 +72,44 @@ fn init_scene() -> Scene {
     items.push(SceneItem::Sphere(big_sphere));
 
     let mut rng = rand::thread_rng();
-    // for a in -11..11 {
-    //     for b in -11..11 {
-    //         let mat_prob: f64 = rng.gen();
-    //         let center = Vec3::new(a as f64 + 0.9 * rng.gen::<f64>(), 0.2, b as f64 + 0.9 * rng.gen::<f64>());
+    for a in -11..11 {
+        for b in -11..11 {
+            let mat_prob: f64 = rng.gen();
+            let center = Vec3::new(a as f64 + 0.9 * rng.gen::<f64>(), 0.2, b as f64 + 0.9 * rng.gen::<f64>());
 
-    //         if (center - Vec3::new(4., 0.2, 0.)).magn() > 0.9 {
-    //             if mat_prob < 0.8 {
-    //                 let diff_mat = Material {
-    //                     color: Color::new(rng.gen(), rng.gen(), rng.gen()),
-    //                     albedo: rng.gen(),
-    //                     surface: Surface::Diffuse
-    //                 };
-    //                 let sphere = MovingSphere::new(center, Vec3::new(center.x(), center.y() + rng.gen::<f64>(), center.z()), 0., 1., 0.2, diff_mat);
-    //                 items.push(SceneItem::MovingSphere(sphere));
-    //             } else if mat_prob < 0.95 {
-    //                 let metall_mat = Material {
-    //                     color: Color::white(),
-    //                     albedo: 0.8,
-    //                     surface: Surface::Reflective {
-    //                         reflectivity: rng.gen()
-    //                     }
-    //                 };
-    //                 let metall_sphere = Sphere::new(center, 0.2, metall_mat);
-    //                 items.push(SceneItem::Sphere(metall_sphere));
-    //             } else {
-    //                 let glass_mat = Material {
-    //                     color: Color::white(),
-    //                     albedo: 1.,
-    //                     surface: Surface::Refractive {
-    //                         index: 1.5
-    //                     }
-    //                 };
-    //                 let left_sphere = Sphere::new(center, 0.2, glass_mat);
-    //                 items.push(SceneItem::Sphere(left_sphere));
-    //             }
-    //         }
-    //     }
-    // }
+            if (center - Vec3::new(4., 0.2, 0.)).magn() > 0.9 {
+                if mat_prob < 0.8 {
+                    let diff_mat = Material {
+                        color: Color::new(rng.gen(), rng.gen(), rng.gen()),
+                        albedo: rng.gen(),
+                        surface: Surface::Diffuse
+                    };
+                    let sphere = MovingSphere::new(center, Vec3::new(center.x(), center.y() + rng.gen::<f64>(), center.z()), 0., 1., 0.2, diff_mat);
+                    items.push(SceneItem::MovingSphere(sphere));
+                } else if mat_prob < 0.95 {
+                    let metall_mat = Material {
+                        color: Color::white(),
+                        albedo: 0.8,
+                        surface: Surface::Reflective {
+                            reflectivity: rng.gen()
+                        }
+                    };
+                    let metall_sphere = Sphere::new(center, 0.2, metall_mat);
+                    items.push(SceneItem::Sphere(metall_sphere));
+                } else {
+                    let glass_mat = Material {
+                        color: Color::white(),
+                        albedo: 1.,
+                        surface: Surface::Refractive {
+                            index: 1.5
+                        }
+                    };
+                    let left_sphere = Sphere::new(center, 0.2, glass_mat);
+                    items.push(SceneItem::Sphere(left_sphere));
+                }
+            }
+        }
+    }
 
     let s1 = Sphere::new(Vec3::new(0., 1., 0.), 1., Material {
                 color: Color::white(),

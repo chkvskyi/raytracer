@@ -140,24 +140,24 @@ impl Scene {
     }
 
     pub fn trace(&self, r: &Ray) -> Option<Intersection> {
-        let mut p: f64 = f64::MAX;
-        let mut i: Option<SceneItem> = None;
-        for item in self.items.iter() {
-            let k = item.intersect(&r);
-            if k > 0. && k < p {
-                p = k;
-                i = Some(*item);
-            }
-        }
+        // let mut p: f64 = f64::MAX;
+        // let mut i: Option<SceneItem> = None;
+        // for item in self.items.iter() {
+        //     let k = item.intersect(&r);
+        //     if k > 0. && k < p {
+        //         p = k;
+        //         i = Some(*item);
+        //     }
+        // }
 
-        match i {
-            Some(item) => Some(Intersection {
-                intersected: item,
-                dist: p
-            }),
-            None => None
-        }
-        // self.bvh.intersect(&r)
+        // match i {
+        //     Some(item) => Some(Intersection {
+        //         intersected: item,
+        //         dist: p
+        //     }),
+        //     None => None
+        // }
+        self.bvh.intersect(&r)
     }
 }
 

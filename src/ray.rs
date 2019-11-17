@@ -12,7 +12,7 @@ impl Ray {
     }
 
     pub fn direction(&self) -> Vec3 {
-        self.direction.normalize().clone()
+        self.direction.clone()
     }
 
     pub fn origin(&self) -> Vec3 {
