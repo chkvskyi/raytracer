@@ -12,15 +12,15 @@ pub mod color;
 pub mod aabb;
 
 use vector::Vec3;
-use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem};
+use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem, Coloration, Texture};
 use camera::Camera;
 use render::get_color;
 use color::Color;
 
 pub fn main() {
-    let nx = 1920;
-    let ny = 1080;
-    let ns = 1024;
+    let nx = 600;
+    let ny = 300;
+    let ns = 100;
 
     let mut rng = rand::thread_rng();
     let mut progress = ProgressBar::new(nx as u64);
@@ -35,7 +35,7 @@ pub fn main() {
         30., nx as f32 / ny as f32, 0.01, focus_dist, 0., 1.);
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
-    let scene = init_scene();
+    let scene = random_scene();
 
     for x in 0..nx {
         for y in 0..ny {
@@ -60,48 +60,10 @@ pub fn main() {
     progress.finish_print("done");
 }
 
-fn init_scene() -> Scene {
-    let diff_bottom_mat = Material {
-        color: Color::green(),
-        albedo: 0.3,
-        surface: Surface::Diffuse
-    };
-    let big_sphere = Sphere::new(Vec3::new(0., -1000., -1.), 1000., diff_bottom_mat);
-
-    let mut items = Vec::new();
-    items.push(SceneItem::Sphere(big_sphere));
-
-    let s1 = Sphere::new(Vec3::new(0., 1., 0.), 1., Material {
-                color: Color::white(),
-                albedo: 0.8,
-                surface: Surface::Refractive {
-                    index: 1.5
-                }
-            });
-
-    let s2 = Sphere::new(Vec3::new(-4., 1., 0.), 1., Material {
-                color: Color::new(0.4, 0.2, 0.1),
-                albedo: 0.8,
-                surface: Surface::Diffuse
-            });
-
-    let s3 = Sphere::new(Vec3::new(4., 1., 0.), 1., Material {
-        color: Color::new(0.4, 0.2, 0.1),
-        albedo: 0.8,
-        surface: Surface::Reflective {
-            reflectivity: 0.
-        }
-    });
-    items.push(SceneItem::Sphere(s1));
-    items.push(SceneItem::Sphere(s2));
-    items.push(SceneItem::Sphere(s3));
-
-    Scene::new(items)
-}
-
 fn random_scene() -> Scene {
+    let tx = Texture::new(Color::blue(), Color::red());
     let diff_bottom_mat = Material {
-        color: Color::green(),
+        color: Coloration::Texture(tx),
         albedo: 0.3,
         surface: Surface::Diffuse
     };
@@ -119,7 +81,7 @@ fn random_scene() -> Scene {
             if (center - Vec3::new(4., 0.2, 0.)).magn() > 0.9 {
                 if mat_prob < 0.8 {
                     let diff_mat = Material {
-                        color: Color::new(rng.gen(), rng.gen(), rng.gen()),
+                        color: Coloration::Color(Color::new(rng.gen(), rng.gen(), rng.gen())),
                         albedo: rng.gen(),
                         surface: Surface::Diffuse
                     };
@@ -128,7 +90,7 @@ fn random_scene() -> Scene {
                     items.push(SceneItem::MovingSphere(sphere));
                 } else if mat_prob < 0.95 {
                     let metall_mat = Material {
-                        color: Color::white(),
+                        color: Coloration::Color(Color::white()),
                         albedo: 0.8,
                         surface: Surface::Reflective {
                             reflectivity: rng.gen()
@@ -138,7 +100,7 @@ fn random_scene() -> Scene {
                     items.push(SceneItem::Sphere(metall_sphere));
                 } else {
                     let glass_mat = Material {
-                        color: Color::white(),
+                        color: Coloration::Color(Color::white()),
                         albedo: 1.,
                         surface: Surface::Refractive {
                             index: 1.5
@@ -152,7 +114,7 @@ fn random_scene() -> Scene {
     }
 
     let s1 = Sphere::new(Vec3::new(0., 1., 0.), 1., Material {
-                color: Color::white(),
+                color: Coloration::Color(Color::white()),
                 albedo: 0.8,
                 surface: Surface::Refractive {
                     index: 1.5
@@ -160,13 +122,13 @@ fn random_scene() -> Scene {
             });
 
     let s2 = Sphere::new(Vec3::new(-4., 1., 0.), 1., Material {
-                color: Color::new(0.4, 0.2, 0.1),
+                color: Coloration::Color(Color::new(0.4, 0.2, 0.1)),
                 albedo: 0.8,
                 surface: Surface::Diffuse
             });
 
     let s3 = Sphere::new(Vec3::new(4., 1., 0.), 1., Material {
-        color: Color::new(0.4, 0.2, 0.1),
+        color: Coloration::Color(Color::new(0.4, 0.2, 0.1)),
         albedo: 0.8,
         surface: Surface::Reflective {
             reflectivity: 0.

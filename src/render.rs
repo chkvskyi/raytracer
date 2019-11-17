@@ -1,4 +1,4 @@
-use crate::scene::{Scene, Surface};
+use crate::scene::{Scene, Surface, TextureCoords};
 use crate::ray::Ray;
 use crate::vector::Vec3;
 use crate::color::Color;
@@ -18,7 +18,11 @@ pub fn get_color(scene: &Scene, ray: &Ray, depth: u8) -> Color {
                 Surface::Diffuse => {
                     let p = ray.point_at(intersection.dist);
                     let target = normal + p + random_unit_sphere();
-                    return material.albedo * material.color * get_color(&scene, &Ray::new(p, target - p, ray.time()), depth + 1)
+                    let tex = TextureCoords {
+                        u: 0.,
+                        v: 0.
+                    };
+                    return material.albedo * material.color.color(&tex, &normal) * get_color(&scene, &Ray::new(p, target - p, ray.time()), depth + 1)
                 },
                 Surface::Reflective { reflectivity } => {
                     let reflected = reflect(ray.direction().normalize(), normal);
