@@ -18,21 +18,21 @@ use render::get_color;
 use color::Color;
 
 pub fn main() {
-    let nx = 600;
-    let ny = 400;
-    let ns = 100;
+    let nx = 1920;
+    let ny = 1080;
+    let ns = 1024;
 
     let mut rng = rand::thread_rng();
     let mut progress = ProgressBar::new(nx as u64);
 
-    let camera_pos = Vec3::new(9., 6., 3.);
+    let camera_pos = Vec3::new(10., 2.5, 4.);
     let camera_look_at = Vec3::new(0., 0., 0.);
     let focus_dist = (camera_pos - camera_look_at).magn();
     let camera = Camera::new(
         camera_pos,
         camera_look_at,
         Vec3::new(0., 1., 0.),
-        30., nx as f32 / ny as f32, 0.1, focus_dist, 0., 1.);
+        30., nx as f32 / ny as f32, 0.01, focus_dist, 0., 1.);
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
     let scene = init_scene();
@@ -71,6 +71,45 @@ fn init_scene() -> Scene {
     let mut items = Vec::new();
     items.push(SceneItem::Sphere(big_sphere));
 
+    let s1 = Sphere::new(Vec3::new(0., 1., 0.), 1., Material {
+                color: Color::white(),
+                albedo: 0.8,
+                surface: Surface::Refractive {
+                    index: 1.5
+                }
+            });
+
+    let s2 = Sphere::new(Vec3::new(-4., 1., 0.), 1., Material {
+                color: Color::new(0.4, 0.2, 0.1),
+                albedo: 0.8,
+                surface: Surface::Diffuse
+            });
+
+    let s3 = Sphere::new(Vec3::new(4., 1., 0.), 1., Material {
+        color: Color::new(0.4, 0.2, 0.1),
+        albedo: 0.8,
+        surface: Surface::Reflective {
+            reflectivity: 0.
+        }
+    });
+    items.push(SceneItem::Sphere(s1));
+    items.push(SceneItem::Sphere(s2));
+    items.push(SceneItem::Sphere(s3));
+
+    Scene::new(items)
+}
+
+fn random_scene() -> Scene {
+    let diff_bottom_mat = Material {
+        color: Color::green(),
+        albedo: 0.3,
+        surface: Surface::Diffuse
+    };
+    let big_sphere = Sphere::new(Vec3::new(0., -1000., -1.), 1000., diff_bottom_mat);
+
+    let mut items = Vec::new();
+    items.push(SceneItem::Sphere(big_sphere));
+
     let mut rng = rand::thread_rng();
     for a in -11..11 {
         for b in -11..11 {
@@ -84,7 +123,8 @@ fn init_scene() -> Scene {
                         albedo: rng.gen(),
                         surface: Surface::Diffuse
                     };
-                    let sphere = MovingSphere::new(center, Vec3::new(center.x(), center.y() + rng.gen::<f64>(), center.z()), 0., 1., 0.2, diff_mat);
+                    let sphere = MovingSphere::new(center, Vec3::new(center.x(), center.y() + rng.gen::<f64>(), center.z()), 0.2, diff_mat, 0., 1.);
+                    // let sphere = Sphere::new(center, 0.2, diff_mat);
                     items.push(SceneItem::MovingSphere(sphere));
                 } else if mat_prob < 0.95 {
                     let metall_mat = Material {

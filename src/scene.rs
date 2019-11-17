@@ -3,7 +3,7 @@ use crate::vector::Vec3;
 use crate::ray::Ray;
 use crate::color::Color;
 use crate::aabb::{AABB, BoundingBox, surrounding_box, BVH};
-use crate::intersectable::{Intersection, Intersectable};
+use crate::intersectable::{Intersection};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
@@ -51,7 +51,7 @@ pub struct MovingSphere {
     material: Material,
 }
 impl MovingSphere {
-    pub fn new(center0: Vec3, center1: Vec3, t0: f64, t1: f64, radius: f64, material: Material) -> MovingSphere {
+    pub fn new(center0: Vec3, center1: Vec3, radius: f64, material: Material, t0: f64, t1: f64) -> MovingSphere {
         MovingSphere { center0, center1, t0, t1, radius, material }
     }
 
