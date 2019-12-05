@@ -67,6 +67,10 @@ impl Vec3 {
             _ => 0.
         }
     }
+
+    pub fn as_arr(&self) -> [f64; 3] {
+        [self.x, self.y, self.z]
+    }
 }
 
 impl Add for Vec3 {
