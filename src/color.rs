@@ -71,6 +71,14 @@ impl Color {
         }
     }
 
+    pub fn gray(gray: f32) -> Color {
+        Color {
+            r: gray,
+            g: gray,
+            b: gray
+        }
+    }
+
     pub fn new(r: f32, g: f32, b: f32) -> Color {
         Color {
             r: r,
