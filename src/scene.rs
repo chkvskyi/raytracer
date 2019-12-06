@@ -4,6 +4,7 @@ use crate::ray::Ray;
 use crate::color::Color;
 use crate::aabb::{AABB, BoundingBox, surrounding_box, BVH};
 use crate::intersectable::{Intersection};
+use crate::texture::{CheckerTexture, TextureCoords};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
@@ -128,42 +129,18 @@ pub struct Material {
 #[derive(Copy, Clone, Debug)]
 pub enum Coloration {
     Color(Color),
-    Texture(Texture)
+    CheckerTexture(CheckerTexture)
 }
 
 impl Coloration {
-    pub fn color(&self, texture_coords: &TextureCoords, p: &Vec3) -> Color {
+    pub fn color(&self, texture_coords: &TextureCoords, normal: &Vec3) -> Color {
         match *self {
             Coloration::Color(c) => c,
-            Coloration::Texture(t) => {
-                t.get_color(&texture_coords, &p)
+            Coloration::CheckerTexture(t) => {
+                t.get_color(&texture_coords, &normal)
             }
         }
     }
-}
-
-#[derive(Copy, Clone, Debug)]
-pub struct Texture {
-    odd: Color,
-    even: Color
-}
-impl Texture {
-    pub fn new(c1: Color, c2: Color) -> Texture {
-        Texture {odd: c1, even: c2}
-    }
-    pub fn get_color(&self, coords: &TextureCoords, p: &Vec3) -> Color {
-        let sines = f64::sin(10000. * p.x()) * f64::sin(10000. * p.y()) * f64::sin(10000. * p.z());
-        if sines < 0. {
-            return self.odd
-        } else {
-            return self.even
-        }
-    }
-}
-
-pub struct TextureCoords {
-    pub u: f64,
-    pub v: f64
 }
 
 pub struct Scene {
@@ -181,23 +158,6 @@ impl Scene {
     }
 
     pub fn trace(&self, r: &Ray) -> Option<Intersection> {
-        // let mut p: f64 = f64::MAX;
-        // let mut i: Option<SceneItem> = None;
-        // for item in self.items.iter() {
-        //     let k = item.intersect(&r);
-        //     if k > 0. && k < p {
-        //         p = k;
-        //         i = Some(*item);
-        //     }
-        // }
-
-        // match i {
-        //     Some(item) => Some(Intersection {
-        //         intersected: item,
-        //         dist: p
-        //     }),
-        //     None => None
-        // }
         self.bvh.intersect(&r)
     }
 }

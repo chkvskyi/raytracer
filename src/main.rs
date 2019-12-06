@@ -10,12 +10,14 @@ pub mod camera;
 pub mod render;
 pub mod color;
 pub mod aabb;
+pub mod texture;
 
 use vector::Vec3;
-use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem, Coloration, Texture};
+use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem, Coloration};
 use camera::Camera;
 use render::get_color;
 use color::Color;
+use texture::{CheckerTexture};
 
 pub fn main() {
     let nx = 600;
@@ -35,7 +37,7 @@ pub fn main() {
         30., nx as f32 / ny as f32, 0.01, focus_dist, 0., 1.);
     let mut img = DynamicImage::new_rgb8(nx, ny);
 
-    let scene = random_scene();
+    let scene = get_scene();
 
     for x in 0..nx {
         for y in 0..ny {
@@ -60,10 +62,34 @@ pub fn main() {
     progress.finish_print("done");
 }
 
-fn random_scene() -> Scene {
-    let tx = Texture::new(Color::blue(), Color::red());
+fn get_scene() -> Scene {
+    let tx = CheckerTexture::new(Color::blue(), Color::red());
     let diff_bottom_mat = Material {
-        color: Coloration::Texture(tx),
+        color: Coloration::CheckerTexture(tx),
+        albedo: 0.3,
+        surface: Surface::Diffuse
+    };
+    let big_sphere = Sphere::new(Vec3::new(0., -1000., -1.), 1000., diff_bottom_mat);
+
+    let tx2 = CheckerTexture::new(Color::red(), Color::green());
+    let diff_sm = Material {
+        color: Coloration::CheckerTexture(tx2),
+        albedo: 0.4,
+        surface: Surface::Diffuse
+    };
+    let sm_sphere = Sphere::new(Vec3::new(0., 2., 0.), 2., diff_sm);
+
+    let mut items = Vec::new();
+    items.push(SceneItem::Sphere(big_sphere));
+    items.push(SceneItem::Sphere(sm_sphere));
+
+    Scene::new(items)
+}
+
+fn random_scene() -> Scene {
+    let tx = CheckerTexture::new(Color::blue(), Color::red());
+    let diff_bottom_mat = Material {
+        color: Coloration::CheckerTexture(tx),
         albedo: 0.3,
         surface: Surface::Diffuse
     };

@@ -1,7 +1,8 @@
-use crate::scene::{Scene, Surface, TextureCoords};
+use crate::scene::{Scene, Surface};
 use crate::ray::Ray;
 use crate::vector::Vec3;
 use crate::color::Color;
+use crate::texture::TextureCoords;
 
 use rand::Rng;
 
@@ -22,7 +23,7 @@ pub fn get_color(scene: &Scene, ray: &Ray, depth: u8) -> Color {
                         u: 0.,
                         v: 0.
                     };
-                    return material.albedo * material.color.color(&tex, &normal) * get_color(&scene, &Ray::new(p, target - p, ray.time()), depth + 1)
+                    return material.albedo * material.color.color(&tex, &p) * get_color(&scene, &Ray::new(p, target - p, ray.time()), depth + 1)
                 },
                 Surface::Reflective { reflectivity } => {
                     let reflected = reflect(ray.direction().normalize(), normal);
