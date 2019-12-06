@@ -17,7 +17,7 @@ use scene::{Scene, Sphere, MovingSphere, Material, Surface, SceneItem, Coloratio
 use camera::Camera;
 use render::get_color;
 use color::Color;
-use texture::{CheckerTexture};
+use texture::{CheckerTexture, NoiseTexture};
 
 pub fn main() {
     let nx = 600;
@@ -27,7 +27,7 @@ pub fn main() {
     let mut rng = rand::thread_rng();
     let mut progress = ProgressBar::new(nx as u64);
 
-    let camera_pos = Vec3::new(10., 2.5, 4.);
+    let camera_pos = Vec3::new(10., 4., 4.);
     let camera_look_at = Vec3::new(0., 0., 0.);
     let focus_dist = (camera_pos - camera_look_at).magn();
     let camera = Camera::new(
@@ -63,9 +63,10 @@ pub fn main() {
 }
 
 fn get_scene() -> Scene {
-    let tx = CheckerTexture::new(Color::blue(), Color::red());
+    // let tx = CheckerTexture::new(Color::blue(), Color::red());
+    let tx = NoiseTexture::new();
     let diff_bottom_mat = Material {
-        color: Coloration::CheckerTexture(tx),
+        color: Coloration::NoiseTexture(tx),
         albedo: 0.3,
         surface: Surface::Diffuse
     };

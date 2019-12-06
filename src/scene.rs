@@ -4,7 +4,7 @@ use crate::ray::Ray;
 use crate::color::Color;
 use crate::aabb::{AABB, BoundingBox, surrounding_box, BVH};
 use crate::intersectable::{Intersection};
-use crate::texture::{CheckerTexture, TextureCoords};
+use crate::texture::{CheckerTexture, NoiseTexture, TextureCoords};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Sphere {
@@ -129,16 +129,16 @@ pub struct Material {
 #[derive(Copy, Clone, Debug)]
 pub enum Coloration {
     Color(Color),
-    CheckerTexture(CheckerTexture)
+    CheckerTexture(CheckerTexture),
+    NoiseTexture(NoiseTexture)
 }
 
 impl Coloration {
-    pub fn color(&self, texture_coords: &TextureCoords, normal: &Vec3) -> Color {
+    pub fn color(&self, texture_coords: &TextureCoords, ray_point: &Vec3) -> Color {
         match *self {
             Coloration::Color(c) => c,
-            Coloration::CheckerTexture(t) => {
-                t.get_color(&texture_coords, &normal)
-            }
+            Coloration::CheckerTexture(t) => t.get_color(&texture_coords, &ray_point),
+            Coloration::NoiseTexture(t) => t.get_color(&texture_coords, &ray_point)
         }
     }
 }
