@@ -47,27 +47,27 @@ impl Color {
         }
     }
 
-    pub fn red() -> Color {
+    pub fn red(r: f32) -> Color {
         Color {
-            r: 1.,
+            r,
             g: 0.,
             b: 0.
         }
     }
 
-    pub fn green() -> Color {
+    pub fn green(g: f32) -> Color {
         Color {
             r: 0.,
-            g: 1.,
+            g,
             b: 0.
         }
     }
 
-    pub fn blue() -> Color {
+    pub fn blue(b: f32) -> Color {
         Color {
             r: 0.,
             g: 0.,
-            b: 1.
+            b
         }
     }
 
@@ -80,11 +80,7 @@ impl Color {
     }
 
     pub fn new(r: f32, g: f32, b: f32) -> Color {
-        Color {
-            r: r,
-            g: g,
-            b: b
-        }
+        Color { r, g, b }
     }
 }
 
