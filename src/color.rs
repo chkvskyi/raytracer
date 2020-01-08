@@ -32,51 +32,27 @@ impl Color {
     }
 
     pub fn black() -> Color {
-        Color {
-            r: 0.,
-            g: 0.,
-            b: 0.,
-        }
+        Color { r: 0., g: 0., b: 0., }
     }
 
     pub fn white() -> Color {
-        Color {
-            r: 1.,
-            g: 1.,
-            b: 1.
-        }
+        Color { r: 1., g: 1., b: 1. }
     }
 
     pub fn red(r: f32) -> Color {
-        Color {
-            r,
-            g: 0.,
-            b: 0.
-        }
+        Color { r, g: 0., b: 0. }
     }
 
     pub fn green(g: f32) -> Color {
-        Color {
-            r: 0.,
-            g,
-            b: 0.
-        }
+        Color { r: 0., g, b: 0. }
     }
 
     pub fn blue(b: f32) -> Color {
-        Color {
-            r: 0.,
-            g: 0.,
-            b
-        }
+        Color { r: 0., g: 0., b }
     }
 
     pub fn gray(gray: f32) -> Color {
-        Color {
-            r: gray,
-            g: gray,
-            b: gray
-        }
+        Color { r: gray, g: gray, b: gray }
     }
 
     pub fn new(r: f32, g: f32, b: f32) -> Color {
