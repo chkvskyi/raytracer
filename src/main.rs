@@ -1,4 +1,3 @@
-#![feature(inner_deref)]
 use image::{DynamicImage, GenericImage};
 use rand::Rng;
 use pbr::ProgressBar;
@@ -72,7 +71,7 @@ fn get_scene() -> Scene {
     };
     let big_sphere = Sphere::new(Vec3::new(0., -1000., -1.), 1000., diff_bottom_mat);
 
-    let tx2 = CheckerTexture::new(Color::red(), Color::green());
+    let tx2 = CheckerTexture::new(Color::red(1.), Color::green(1.));
     let diff_sm = Material {
         color: Coloration::CheckerTexture(tx2),
         albedo: 0.4,
@@ -88,7 +87,7 @@ fn get_scene() -> Scene {
 }
 
 fn random_scene() -> Scene {
-    let tx = CheckerTexture::new(Color::blue(), Color::red());
+    let tx = CheckerTexture::new(Color::blue(1.), Color::red(1.));
     let diff_bottom_mat = Material {
         color: Coloration::CheckerTexture(tx),
         albedo: 0.3,
